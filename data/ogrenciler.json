@@ -1,0 +1,16 @@
+[
+    {
+        "isim": "Burak Yahya UZUN",
+        "tc": "111",
+        "numara": "200",
+        "banned": false,
+        "uyari_haftasi": 0
+    },
+    {
+        "isim": "Yusuf Kaan Yavuz",
+        "tc": "222",
+        "numara": "209",
+        "banned": false,
+        "uyari_haftasi": 0
+    }
+]

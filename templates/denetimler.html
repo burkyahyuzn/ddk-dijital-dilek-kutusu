@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}DDK - Denetim Paneli{% endblock %}
+
+{% block icerik %}
+<style>
+    .denetim-baslik { border-bottom: 1px solid #2f3336; padding: 15px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; font-weight: 800; font-size: 1.3em; color: #ff0055; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); }
+    .denetim-kart { padding: 25px 20px; border-bottom: 1px solid #2f3336; border-left: 4px solid #ffaa00; background: rgba(255,170,0,0.03); transition: 0.3s; margin-bottom: 15px; border-radius: 0 10px 10px 0; }
+    .denetim-ust-satir { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dashed rgba(255,170,0,0.3); padding-bottom: 10px; }
+    .denetim-yazar-bilgi { font-weight: bold; color: #ffaa00; font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
+    .denetim-tc-bilgi { color: #71767b; font-size: 0.85em; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 10px; border: 1px solid #333; }
+    .denetim-tarih { color: #71767b; font-size: 0.9em; font-weight: 600; }
+    .denetim-icerik { font-size: 1.25em; line-height: 1.6; color: #fff; margin-bottom: 20px; font-style: italic; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border: 1px solid #2f3336; word-wrap: break-word; }
+    .denetim-butonlar { display: flex; gap: 15px; }
+    .btn-onayla { background: #00e5ff; color: #000; padding: 12px 25px; border-radius: 30px; font-weight: 800; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 1.05em; }
+    .btn-onayla:hover { background: #00b8cc; transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,229,255,0.3); }
+    .btn-reddet { background: #ff4444; color: #fff; padding: 12px 25px; border-radius: 30px; font-weight: 800; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 1.05em; }
+    .btn-reddet:hover { background: #cc0000; transform: scale(1.05); box-shadow: 0 5px 15px rgba(255,68,68,0.3); }
+    
+    .bos-denetim { padding: 100px 20px; text-align: center; }
+    .bos-ikon-cerceve { background: rgba(0,229,255,0.05); width: 120px; height: 120px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 25px auto; border: 1px dashed #00e5ff; }
+    .bos-ikon { font-size: 4em; color: #00e5ff; }
+    .bos-metin-baslik { color: #e7e9ea; font-size: 1.8em; margin-bottom: 10px; font-weight: 900; }
+    .bos-metin-alt { color: #71767b; font-size: 1.15em; line-height: 1.6; max-width: 500px; margin: 0 auto; }
+</style>
+
+<div class="denetim-baslik">
+    <i class="fas fa-shield-alt"></i> Denetim Bekleyen İçerikler
+</div>
+
+<div>
+    {% if gonderiler %}
+        {% for gonderi in gonderiler %}
+        <div class="denetim-kart">
+            
+            <div class="denetim-ust-satir">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span class="denetim-yazar-bilgi">
+                        <i class="fas fa-user-graduate"></i> {{ gonderi.yazar }}
+                    </span>
+                    <span class="denetim-tc-bilgi">TC: {{ gonderi.tc }}</span>
+                </div>
+                <span class="denetim-tarih"><i class="far fa-calendar-alt"></i> {{ gonderi.tarih }}</span>
+            </div>
+            
+            <div class="denetim-icerik">"{{ gonderi.icerik }}"</div>
+            
+            <div class="denetim-butonlar">
+                <button onclick="sifreliYetkiliIslemi('onayla', '{{ gonderi.id }}')" class="btn-onayla">
+                    <i class="fas fa-check-circle"></i> Onayla ve Akışa Al
+                </button>
+                
+                <button onclick="sifreliYetkiliIslemi('sil', '{{ gonderi.id }}')" class="btn-reddet">
+                    <i class="fas fa-trash-alt"></i> Reddet ve Sil
+                </button>
+
+                <button onclick="sifreliYetkiliIslemi('banla', '{{ gonderi.tc }}')" class="btn-reddet" style="background: #ff0055; margin-left: auto;">
+                    <i class="fas fa-ban"></i> Öğrenciyi Banla
+                </button>
+            </div>
+
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="bos-denetim">
+            <div class="bos-ikon-cerceve">
+                <i class="fas fa-check-double bos-ikon"></i>
+            </div>
+            <h3 class="bos-metin-baslik">Her Şey Tertemiz!</h3>
+            <p class="bos-metin-alt">Sistemde kurallara aykırı kelime filtresine veya spam denetimine takılan hiçbir gönderi bulunmuyor. Eline sağlık!</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

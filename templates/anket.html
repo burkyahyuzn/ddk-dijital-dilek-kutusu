@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}DDK - Haftalık Anket{% endblock %}
+
+{% block icerik %}
+<style>
+    .anket-baslik-satiri { border-bottom: 1px solid #2f3336; padding: 20px 25px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; font-weight: 900; font-size: 1.3em; display: flex; align-items: center; gap: 12px; color: #00e5ff; backdrop-filter: blur(10px); }
+    
+    .bekle-kutu { padding: 100px 20px; text-align: center; }
+    .bekle-ikon-cerceve { background: rgba(255,255,255,0.03); width: 140px; height: 140px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 30px auto; border: 1px dashed #444; }
+    .bekle-ikon { font-size: 5em; color: #555; }
+    .bekle-baslik { color: #ffffff; font-size: 2em; font-weight: 900; margin-bottom: 15px; }
+    .bekle-metin { color: #71767b; font-size: 1.2em; line-height: 1.6; max-width: 500px; margin: 0 auto; }
+    .bekle-vurgu { color: #00e5ff; font-weight: 800; font-size: 1.1em; background: rgba(0,229,255,0.1); padding: 2px 10px; border-radius: 8px; }
+    
+    .pazar-uyari { background: rgba(255,170,0,0.1); border: 1px solid rgba(255,170,0,0.3); color: #ffaa00; padding: 20px; border-radius: 15px; margin: 40px 25px; text-align: center; font-size: 1.2em; font-weight: bold; line-height: 1.6; }
+
+    .finalist-kart { background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0) 100%); border: 1px solid #333; border-radius: 16px; padding: 25px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+    .finalist-kart:hover { border-color: #00e5ff; box-shadow: 0 5px 20px rgba(0,229,255,0.1); transform: translateY(-2px); }
+    .f-icerik { color: #fff; font-size: 1.3em; font-weight: bold; margin-bottom: 10px; }
+    .f-oy { color: #f91880; font-size: 1em; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+    
+    .btn-oy-ver { display: inline-flex; align-items: center; gap: 8px; background: rgba(249,24,128,0.1); color: #f91880; padding: 12px 25px; border-radius: 30px; font-weight: 900; text-decoration: none; border: 2px solid #f91880; transition: 0.2s; }
+    .btn-oy-ver:hover { background: #f91880; color: #fff; }
+    .btn-oy-geri { display: inline-flex; align-items: center; gap: 8px; background: #f91880; color: #fff; padding: 12px 25px; border-radius: 30px; font-weight: 900; text-decoration: none; border: 2px solid #f91880; transition: 0.2s; }
+</style>
+
+<div class="anket-baslik-satiri">
+    <i class="fas fa-poll"></i> 
+    <span>Haftalık Final Oylaması</span>
+</div>
+
+{% if bugun == 5 %}
+    <div style="text-align: center; margin: 40px 20px 30px 20px;">
+        <i class="fas fa-fire" style="font-size: 4em; color: #ff4444; margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(255,68,68,0.5));"></i>
+        <h3 style="color: #fff; font-size: 2.2em; font-weight: 900; margin-bottom: 10px;">Büyük Final Başladı!</h3>
+        <p style="color: #aaa; font-size: 1.1em;">Hafta boyunca en çok destek gören 3 dilek şu an finalde. <br>Şampiyonu belirlemek için desteklediğin fikre oy ver. Bu gece yarısı oylama kapanacak!</p>
+    </div>
+
+    <div style="padding: 0 25px 40px 25px;">
+        {% for post in top_3 %}
+        <div class="finalist-kart">
+            <div style="max-width: 70%;">
+                <div class="f-icerik">"{{ post.icerik }}"</div>
+                <div class="f-oy"><i class="fas fa-heart"></i> Güncel Oy: {{ post.begenenler|length }}</div>
+            </div>
+            
+            <a href="{{ url_for('begen', post_id=post.id) }}" class="{% if session.get('tc') in post.begenenler %}btn-oy-geri{% else %}btn-oy-ver{% endif %}">
+                {% if session.get('tc') in post.begenenler %}
+                    <i class="fas fa-check"></i> Oylandı
+                {% else %}
+                    <i class="fas fa-arrow-up"></i> Destekle
+                {% endif %}
+            </a>
+        </div>
+        {% else %}
+        <div style="text-align:center; color:#777; padding: 30px;">
+            Hafta boyunca hiç gönderi onaylanmadığı için anket boş.
+        </div>
+        {% endfor %}
+    </div>
+
+{% elif bugun == 6 %}
+    <div class="pazar-uyari">
+        <i class="fas fa-crown" style="font-size: 3em; display: block; margin-bottom: 15px; color: #ffd700;"></i>
+        Oylama sona erdi ve haftanın kazananı belirlendi!<br>
+        Sağ paneldeki şampiyonluk kutusundan sonucu görebilirsiniz.<br>
+        <span style="font-size: 0.85em; color: #ccc; font-weight: normal; display: block; margin-top: 10px;">Sistem sıfırlandı. Yeni dilekler Pazartesi gününden itibaren alınacaktır.</span>
+    </div>
+{% else %}
+    <div class="bekle-kutu">
+        <div class="bekle-ikon-cerceve">
+            <i class="fas fa-calendar-times bekle-ikon"></i>
+        </div>
+        <h3 class="bekle-baslik">Oylama Şu An Kapalı</h3>
+        <p class="bekle-metin">
+            Pazartesi gününden itibaren biriken gönderiler arasından en iyi 3 tanesi <span class="bekle-vurgu">Cumartesi</span> günü bu ekranda oylamaya sunulacaktır. O zamana kadar ana akışta fikirlere destek olmaya devam edebilirsin.
+        </p>
+    </div>
+{% endif %}
+
+{% endblock %}

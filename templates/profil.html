@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}DDK - Profilim{% endblock %}
+
+{% block icerik %}
+<style>
+    .profil-kapsayici { position: relative; border-bottom: 1px solid #2f3336; background: #050505; }
+    
+    .kapak-foto { height: 160px; opacity: 0.85; transition: 0.3s; }
+    .kapak-ogrenci { background: linear-gradient(135deg, #00e5ff 0%, #002633 100%); }
+    .kapak-yetkili { background: linear-gradient(135deg, #ff0055 0%, #330011 100%); }
+    
+    .profil-bilgi-alani { padding: 0 25px 25px 25px; position: relative; top: -55px; }
+    .profil-ust-satir { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+    
+    .avatar-cerceve { width: 110px; height: 110px; border-radius: 50%; background: #000; display: flex; justify-content: center; align-items: center; border: 5px solid #000; box-shadow: 0 5px 20px rgba(0,0,0,0.6); }
+    .profil-avatar { width: 100px; height: 100px; font-size: 3em; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+    .profil-avatar-ogr { background: #00e5ff; color: #000; }
+    .profil-avatar-ytk { background: #ff0055; color: #fff; }
+    
+    .rol-rozet { padding: 8px 25px; border-radius: 30px; font-weight: 900; letter-spacing: 1.5px; font-size: 0.9em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .rozet-ogrenci { background: rgba(0,229,255,0.15); border: 1px solid #00e5ff; color: #00e5ff; }
+    .rozet-yetkili { background: rgba(255,0,85,0.15); border: 1px solid #ff0055; color: #ff0055; }
+    
+    .kullanici-adi { margin: 0 0 5px 0; font-size: 2em; font-weight: 900; color: #ffffff; letter-spacing: -0.5px; }
+    .kullanici-tc { margin: 0 0 25px 0; color: #71767b; font-size: 1.05em; font-family: monospace; }
+    .istatistik-satir { display: flex; gap: 40px; color: #aaa; font-size: 1.15em; background: rgba(255,255,255,0.02); padding: 15px 25px; border-radius: 15px; border: 1px solid #1a1a1a; display: inline-flex; }
+    .istatistik-kutu { display: flex; flex-direction: column; align-items: center; }
+    .istatistik-sayi { color: #ffffff; font-weight: 900; font-size: 1.3em; margin-bottom: 3px; }
+    .istatistik-etiket { font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; color: #71767b; font-weight: bold; }
+    .mavi-tik { color: #00e5ff; font-size: 0.6em; vertical-align: middle; margin-left: 5px; filter: drop-shadow(0 0 5px rgba(0,229,255,0.5)); }
+    
+    .gecmis-baslik { border-bottom: 1px solid #2f3336; padding: 20px 25px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; font-weight: 900; font-size: 1.25em; display: flex; align-items: center; gap: 10px; color: #e7e9ea; backdrop-filter: blur(10px); }
+    .gonderi-kart { padding: 30px 25px; border-bottom: 1px solid #2f3336; transition: 0.3s; background: rgba(255,255,255,0.01); }
+    .gonderi-kart:hover { background: rgba(255,255,255,0.02); }
+    
+    .kart-ust-satir { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .kart-tarih { color: #71767b; font-size: 0.95em; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    
+    .durum-rozet { padding: 6px 15px; border-radius: 20px; font-size: 0.85em; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
+    .durum-yayinda { background: rgba(0,229,255,0.1); color: #00e5ff; border: 1px solid rgba(0,229,255,0.3); }
+    .durum-beklemede { background: rgba(255,170,0,0.1); color: #ffaa00; border: 1px solid rgba(255,170,0,0.3); }
+    
+    .kart-icerik { font-size: 1.25em; line-height: 1.6; color: #e7e9ea; margin-bottom: 25px; font-style: italic; word-wrap: break-word; }
+    .kart-alt-etkilesim { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #333; padding-top: 15px; }
+    .etkilesim-gruplari { display: flex; gap: 30px; }
+    .kart-begeni { color: #f91880; font-weight: 800; font-size: 1.05em; display: flex; align-items: center; gap: 8px; }
+    .kart-yorum { color: #00e5ff; font-weight: 800; font-size: 1.05em; display: flex; align-items: center; gap: 8px; }
+    
+    .btn-sil-profil { color: #ff4444; font-size: 1em; padding: 8px 15px; border-radius: 30px; cursor: pointer; text-decoration: none; font-weight: bold; background: rgba(255,68,68,0.1); border: 1px solid transparent; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-sil-profil:hover { background: rgba(255,68,68,0.2); border-color: rgba(255,68,68,0.4); transform: scale(1.05); }
+
+    .bos-profil-alani { padding: 100px 20px; text-align: center; }
+    .bos-profil-ikon-kutu { background: rgba(0,229,255,0.05); width: 120px; height: 120px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 25px auto; border: 1px dashed #00e5ff; }
+    .bos-profil-ikon { font-size: 4em; color: #00e5ff; }
+    .bos-profil-baslik { color: #ffffff; font-size: 1.8em; margin-bottom: 15px; font-weight: 900; }
+    .bos-profil-metin { color: #71767b; font-size: 1.15em; line-height: 1.6; max-width: 450px; margin: 0 auto; }
+    .btn-akis-paylas { display: inline-flex; align-items: center; gap: 10px; margin-top: 30px; box-shadow: 0 5px 20px rgba(0,229,255,0.25); background: #00e5ff; color: #000; padding: 15px 35px; border-radius: 40px; font-weight: 900; font-size: 1.1em; transition: 0.3s; text-decoration: none; }
+    .btn-akis-paylas:hover { background: #00b8cc; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,229,255,0.4); }
+</style>
+
+{% set toplam_gonderi = gonderiler|length %}
+{% set toplam_begeni = namespace(sayi=0) %}
+
+{% for g in gonderiler %}
+    {% if g.begenenler %}
+        {% set begenenler_sayisi = g.begenenler|length %}
+    {% else %}
+        {% set begenenler_sayisi = 0 %}
+    {% endif %}
+    {% set toplam_begeni.sayi = toplam_begeni.sayi + begenenler_sayisi %}
+{% endfor %}
+
+<div class="profil-kapsayici">
+    {% if session.get('rol') == 'yetkili' %}
+        <div class="kapak-foto kapak-yetkili"></div>
+    {% else %}
+        <div class="kapak-foto kapak-ogrenci"></div>
+    {% endif %}
+    
+    <div class="profil-bilgi-alani">
+        <div class="profil-ust-satir">
+            <div class="avatar-cerceve">
+                {% if session.get('rol') == 'yetkili' %}
+                    <div class="profil-avatar profil-avatar-ytk"><i class="fas fa-user-shield"></i></div>
+                {% else %}
+                    <div class="profil-avatar profil-avatar-ogr"><i class="fas fa-user"></i></div>
+                {% endif %}
+            </div>
+            
+            {% if session.get('rol') == 'yetkili' %}
+                <div class="rol-rozet rozet-yetkili">
+                    <i class="fas fa-shield-alt"></i> YETKİLİ
+                </div>
+            {% else %}
+                <div class="rol-rozet rozet-ogrenci">
+                    <i class="fas fa-user-graduate"></i> ÖĞRENCİ
+                </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <h2 class="kullanici-adi">
+                {{ session.get('kullanici') }}
+                {% if session.get('rol') == 'yetkili' %}
+                    <i class="fas fa-check-circle mavi-tik"></i>
+                {% endif %}
+            </h2>
+            
+            {% set tc_no = session.get('tc') %}
+            {% if tc_no and tc_no|length >= 3 %}
+                <p class="kullanici-tc">@{{ tc_no[:1] }}*********{{ tc_no[-1:] }}</p>
+            {% else %}
+                <p class="kullanici-tc">@SistemKimligi</p>
+            {% endif %}
+            
+            <div class="istatistik-satir">
+                <div class="istatistik-kutu">
+                    <span class="istatistik-sayi">{{ toplam_gonderi }}</span>
+                    <span class="istatistik-etiket">Gönderi</span>
+                </div>
+                <div class="istatistik-kutu">
+                    <span class="istatistik-sayi">{{ toplam_begeni.sayi }}</span>
+                    <span class="istatistik-etiket">Alınan Beğeni</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="gecmis-baslik">
+    <i class="fas fa-list-ul" style="color: #00e5ff;"></i> Gönderi Geçmişim
+</div>
+
+<div class="gonderi-listesi">
+    {% if gonderiler %}
+        {% for gonderi in gonderiler %}
+        <div class="gonderi-kart">
+            <div class="kart-ust-satir">
+                <div class="kart-tarih">
+                    <i class="far fa-clock"></i> {{ gonderi.tarih }}
+                </div>
+                
+                {% if gonderi.durum == 'yayinda' %}
+                    <span class="durum-rozet durum-yayinda">
+                        <i class="fas fa-check-circle"></i> Yayında
+                    </span>
+                {% else %}
+                    <span class="durum-rozet durum-beklemede">
+                        <i class="fas fa-hourglass-half"></i> Denetim Bekliyor
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="kart-icerik">"{{ gonderi.icerik }}"</div>
+            
+            {% if gonderi.begenenler %}
+                {% set post_begeni = gonderi.begenenler|length %}
+            {% else %}
+                {% set post_begeni = 0 %}
+            {% endif %}
+
+            {% if gonderi.yorumlar %}
+                {% set post_yorum = gonderi.yorumlar|length %}
+            {% else %}
+                {% set post_yorum = 0 %}
+            {% endif %}
+
+            <div class="kart-alt-etkilesim">
+                <div class="etkilesim-gruplari">
+                    <div class="kart-begeni">
+                        <i class="fas fa-heart"></i> {{ post_begeni }} Beğeni
+                    </div>
+                    <div class="kart-yorum">
+                        <i class="fas fa-comment"></i> {{ post_yorum }} Yorum
+                    </div>
+                </div>
+
+                {% if session.get('rol') == 'ogrenci' %}
+                    <a href="{{ url_for('ogrenci_sil', post_id=gonderi.id) }}" onclick="return confirm('Bu gönderiyi tamamen silmek istediğine emin misin?');" class="btn-sil-profil">
+                        <i class="fas fa-trash-alt"></i> Sil
+                    </a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="bos-profil-alani">
+            <div class="bos-profil-ikon-kutu">
+                <i class="fas fa-pen-nib bos-profil-ikon"></i>
+            </div>
+            <h3 class="bos-profil-baslik">Henüz Bir İz Bırakmadın</h3>
+            <p class="bos-profil-metin">Sistemde sana ait hiçbir dilek veya duyuru bulunmuyor. Hemen akışa giderek ilk fikrini okulunla paylaş!</p>
+            <a href="{{ url_for('akis') }}" class="btn-akis-paylas">
+                <i class="fas fa-paper-plane"></i> Akışa Git ve Paylaş
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

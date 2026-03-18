@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DDK Sistemi{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sag-panel-kutu { background: #16181c; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+        .kullanici-karti { display: flex; align-items: center; gap: 15px; border: 1px solid #333; }
+        .kullanici-isim { font-weight: 900; color: white; font-size: 1.1em; }
+        .kullanici-rol { color: #71767b; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
+        .kural-baslik { font-weight: 900; font-size: 1.2em; display: block; margin-bottom: 15px; color: #e7e9ea; }
+        .kural-liste { color: #71767b; font-size: 0.9em; line-height: 1.8; list-style: none; padding: 0; margin: 0; }
+        .kural-liste li::before { content: "- "; color: #00e5ff; font-weight: bold; }
+        .kazanan-kutu { border: 2px solid #ffd700; background: radial-gradient(circle, rgba(255,215,0,0.05) 0%, rgba(0,0,0,0) 100%); }
+        .kazanan-baslik { font-weight: 900; font-size: 1.2em; display: flex; align-items: center; margin-bottom: 15px; color: #ffd700; }
+        .kazanan-ikon { margin-right: 8px; font-size: 1.3em; filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
+        .kazanan-metin { font-style: italic; color: #fff; font-size: 1.05em; line-height: 1.6; margin-bottom: 15px; word-wrap: break-word; }
+        .kazanan-alt-bilgi { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,215,0,0.3); padding-top: 10px; }
+        .kazanan-yazar { color: #ffd700; font-size: 0.85em; font-weight: bold; }
+        .kazanan-oy { background: rgba(249,24,128,0.2); color: #f91880; padding: 4px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }
+        .ilk-hafta-kutu { color: #71767b; font-size: 0.95em; text-align: center; padding: 10px 0; }
+        .ilk-hafta-ikon { font-size: 2em; margin-bottom: 10px; display: block; opacity: 0.5; }
+        .ilk-hafta-vurgu { display: block; font-weight: bold; color: #aaa; margin-bottom: 5px; }
+        .flash-genel { padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; }
+        .flash-bg-hata { background: rgba(255,68,68,0.1); color: #ff4444; border: 1px solid rgba(255,68,68,0.2); }
+        .flash-bg-bilgi { background: rgba(0,229,255,0.1); color: #00e5ff; border: 1px solid rgba(0,229,255,0.2); }
+    </style>
+</head>
+<body>
+
+<div class="sayfa-duzeni">
+    <div class="sol-panel">
+        <div style="padding-left:20px; margin-bottom:30px; display:flex; align-items:center; gap:15px;">
+            <i class="fas fa-cube" style="color:#00e5ff; font-size:2.5em; filter: drop-shadow(0 0 10px rgba(0,229,255,0.4));"></i>
+            <div>
+                <span style="font-size:1.8em; font-weight:900; color:white; display:block; letter-spacing: -1px;">DDK</span>
+            </div>
+        </div>
+        
+        <a href="{{ url_for('akis') }}" class="menu-item {% if request.endpoint == 'akis' %}menu-aktif{% endif %}"><i class="fas fa-home"></i> Ana Akış</a>
+        <a href="{{ url_for('trendler') }}" class="menu-item {% if request.endpoint == 'trendler' %}menu-aktif{% endif %}"><i class="fas fa-fire"></i> Trendler</a>
+        <a href="{{ url_for('anket') }}" class="menu-item {% if request.endpoint == 'anket' %}menu-aktif{% endif %}"><i class="fas fa-poll"></i> Anket</a>
+        <a href="{{ url_for('profil') }}" class="menu-item {% if request.endpoint == 'profil' %}menu-aktif{% endif %}"><i class="fas fa-user"></i> Profilim</a>
+        
+        {% if session.get('rol') == 'yetkili' %}
+        <div style="margin-top:25px; border-top:1px dashed #333; padding-top:15px;">
+            <p style="color:#555; font-size:0.8em; margin-left:20px; font-weight:800; letter-spacing:1px;">YÖNETİM</p>
+            <a href="{{ url_for('denetimler') }}" class="menu-item {% if request.endpoint == 'denetimler' %}menu-aktif{% endif %}" style="color:#ff0055;"><i class="fas fa-shield-alt"></i> Denetimler</a>
+            <a href="{{ url_for('ogrenciler') }}" class="menu-item {% if request.endpoint == 'ogrenciler' %}menu-aktif{% endif %}" style="color:#00e5ff;"><i class="fas fa-users"></i> Öğrenciler</a>
+        </div>
+        {% endif %}
+
+        <a href="{{ url_for('cikis') }}" class="menu-item" style="color:#ff4444; margin-top:50px;"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+    </div>
+
+    <div class="orta-panel">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-genel {{ 'flash-bg-hata' if category == 'hata' else 'flash-bg-bilgi' }}">
+                    <i class="fas {{ 'fa-exclamation-triangle' if category == 'hata' else 'fa-info-circle' }}"></i> {{ message }}
+                </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        {% block icerik %}{% endblock %}
+    </div>
+
+    <div class="sag-panel">
+        <div class="sag-panel-kutu kullanici-karti">
+            <div class="avatar"><i class="fas fa-user"></i></div>
+            <div>
+                <div class="kullanici-isim">{{ session.get('kullanici') }}</div>
+                <div class="kullanici-rol">{{ session.get('rol') }}</div>
+            </div>
+        </div>
+
+        <div class="sag-panel-kutu">
+            <span class="kural-baslik"><i class="fas fa-list-check" style="color:#00e5ff; margin-right:5px;"></i> DDK Nedir?</span>
+            <ul class="kural-liste">
+                <li>Açılımı “Dijital Dilek Kutusu”dur.</li>
+                <li>Dileklerinizi bu platformda paylaşabilirsiniz.</li>
+                <li>Pazartesi gününden itibaren gönderiler birikir.</li>
+                <li>Cumartesi günü en çok beğenilen üç istek oylamaya sunulur.</li>
+                <li>Oylama sonucunda en çok oy alan istek, haftanın kazananı olarak seçilir.</li>
+                <li>Haftanın kazananı, pazar gününden cumartesi gününe kadar sergilenir.</li>
+                <li>Her hafta kazanan isteğin okul tarafından gerçekleştirilmesi beklenir.</li>
+                <li>Pazar günü gönderiler sıfırlanır ve yeni gönderi yapılmaz.</li>
+            </ul>
+        </div>
+        
+        <div class="sag-panel-kutu kazanan-kutu">
+            <span class="kazanan-baslik"><i class="fas fa-crown kazanan-ikon"></i> Haftanın Kazananı</span>
+            {% if global_kazanan %}
+                <div class="kazanan-metin">"{{ global_kazanan.icerik }}"</div>
+                <div class="kazanan-alt-bilgi">
+                    <span class="kazanan-yazar"><i class="fas fa-user"></i> Öğrenci</span>
+                    <span class="kazanan-oy"><i class="fas fa-heart"></i> {{ global_kazanan.begenenler|length if global_kazanan.begenenler else 0 }} Oylama</span>
+                </div>
+            {% else %}
+                <div class="ilk-hafta-kutu">
+                    <i class="fas fa-hourglass-start ilk-hafta-ikon"></i>
+                    <span class="ilk-hafta-vurgu">Daha İlk Hafta...</span>
+                    Sisteme henüz bir şampiyon kaydedilmedi.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function sifreliYetkiliIslemi(islem_turu, hedef_id, ozel_mesaj) {
+        let varsayilan_mesaj = "İşlemi onaylamak için yetkili şifrenizi girin:";
+        let mesaj = ozel_mesaj ? ozel_mesaj : varsayilan_mesaj;
+        
+        let sifre = prompt(mesaj);
+        if (sifre) {
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{{ url_for('yetkili_islem') }}";
+            
+            let i1 = document.createElement("input"); i1.name = "islem_turu"; i1.value = islem_turu; form.appendChild(i1);
+            let i2 = document.createElement("input"); i2.name = "hedef_id"; i2.value = hedef_id; form.appendChild(i2);
+            let i3 = document.createElement("input"); i3.name = "sifre"; i3.value = sifre; form.appendChild(i3);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+</body>
+</html>

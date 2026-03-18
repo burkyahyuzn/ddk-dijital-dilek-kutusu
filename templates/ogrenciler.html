@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}DDK - Öğrenci Yönetimi{% endblock %}
+
+{% block icerik %}
+<style>
+    .ogrenci-baslik { border-bottom: 1px solid #2f3336; padding: 20px 25px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; font-weight: 900; font-size: 1.3em; display: flex; align-items: center; gap: 12px; color: #00e5ff; backdrop-filter: blur(10px); }
+    
+    .ogrenci-kart { padding: 25px; border-bottom: 1px solid #2f3336; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; background: rgba(255,255,255,0.01); }
+    .ogrenci-kart:hover { background: rgba(255,255,255,0.03); }
+    
+    .ogr-sol { display: flex; align-items: center; gap: 15px; }
+    .ogr-avatar { width: 50px; height: 50px; border-radius: 50%; background: #222; display: flex; justify-content: center; align-items: center; font-size: 1.5em; color: #71767b; border: 2px solid #333; }
+    .ogr-isim { font-weight: 900; font-size: 1.2em; color: #ffffff; margin-bottom: 2px; }
+    .ogr-detay { color: #555; font-size: 0.85em; font-family: monospace; display: flex; gap: 15px; }
+    
+    .durum-yazisi { font-size: 0.75em; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase; }
+    .yazi-banli { color: #ff4444; }
+    .yazi-uyarili { color: #ffaa00; }
+
+    .ogr-butonlar { display: flex; gap: 10px; }
+    .btn-y-uyari { background: rgba(255,170,0,0.1); color: #ffaa00; border: 1px solid #ffaa00; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-y-uyari:hover { background: #ffaa00; color: #000; }
+    
+    .btn-y-ban { background: rgba(255,68,68,0.1); color: #ff4444; border: 1px solid #ff4444; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-y-ban:hover { background: #ff4444; color: #fff; }
+    
+    .btn-y-kaldir { background: rgba(0,229,255,0.1); color: #00e5ff; border: 1px solid #00e5ff; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-y-kaldir:hover { background: #00e5ff; color: #000; }
+</style>
+
+<div class="ogrenci-baslik">
+    <i class="fas fa-users-cog"></i> 
+    <span>Sistemdeki Öğrenciler</span>
+</div>
+
+<div style="padding: 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #2f3336; color: #aaa; font-size: 0.95em; line-height: 1.6;">
+    <i class="fas fa-info-circle" style="color: #00e5ff;"></i> <b>Bilgilendirme Paneli:</b>
+    <ul style="margin-top: 10px; margin-left: 20px; color: #888;">
+        <li><b style="color:#ffaa00;">Uyarı İşlemleri:</b> Öğrenciye haftalık kısıtlama getirebilir veya kısıtlamayı kaldırabilirsiniz.</li>
+        <li><b style="color:#ff4444;">Ban İşlemleri:</b> Kalıcı olarak erişimi kesebilir veya geri açabilirsiniz.</li>
+    </ul>
+</div>
+
+<div>
+    {% for ogr in ogrenciler %}
+    <div class="ogrenci-kart">
+        <div class="ogr-sol">
+            <div class="ogr-avatar">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div>
+                <div class="ogr-isim">{{ ogr.isim }}</div>
+                
+                {% if ogr.banned %}
+                    <div class="durum-yazisi yazi-banli">- BANLANDI</div>
+                {% elif ogr.uyari_haftasi == aktif_hafta %}
+                    <div class="durum-yazisi yazi-uyarili">- UYARILDI (HAFTALIK)</div>
+                {% endif %}
+
+                <div class="ogr-detay">
+                    <span>TC: {{ ogr.tc }}</span>
+                    <span>NO: {{ ogr.numara }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ogr-butonlar">
+            {% if ogr.uyari_haftasi == aktif_hafta %}
+                <button onclick="sifreliYetkiliIslemi('uyari_kaldir', '{{ ogr.tc }}', 'Öğrencinin haftalık UYARISINI KALDIRMAK için yetkili şifrenizi girin. Hemen paylaşım yapabilecektir.')" class="btn-y-kaldir" title="Haftalık kısıtlamayı kaldır">
+                    <i class="fas fa-comment-medical"></i> Uyarı Kaldır
+                </button>
+            {% else %}
+                <button onclick="sifreliYetkiliIslemi('uyari', '{{ ogr.tc }}', 'Öğrenciye UYARI vermek için yetkili şifrenizi girin. Bu işlem öğrencinin mevcut tüm iletilerini siler ve hafta boyu ileti göndermesini engeller.')" class="btn-y-uyari">
+                    <i class="fas fa-exclamation-triangle"></i> Uyarı Ver
+                </button>
+            {% endif %}
+            
+            {% if ogr.banned %}
+                <button onclick="sifreliYetkiliIslemi('ban_kaldir', '{{ ogr.tc }}', 'Öğrencinin BANINI KALDIRMAK için yetkili şifrenizi girin. Sisteme tekrar giriş yapabilecektir.')" class="btn-y-kaldir">
+                    <i class="fas fa-unlock"></i> Ban Kaldır
+                </button>
+            {% else %}
+                <button onclick="sifreliYetkiliIslemi('banla', '{{ ogr.tc }}', 'Öğrenciyi kalıcı olarak BANLAMAK için yetkili şifrenizi girin. Sisteme bir daha giriş yapamaz.')" class="btn-y-ban">
+                    <i class="fas fa-ban"></i> Banla
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

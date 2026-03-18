@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}DDK - Trendler{% endblock %}
+
+{% block icerik %}
+<style>
+    .trend-baslik { border-bottom: 1px solid #2f3336; padding: 20px 25px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; font-weight: 900; font-size: 1.3em; display: flex; align-items: center; gap: 12px; color: #ffaa00; backdrop-filter: blur(10px); }
+    
+    .trend-afis { padding: 25px; background: linear-gradient(135deg, rgba(255,170,0,0.1) 0%, rgba(0,0,0,0) 100%); border-bottom: 1px solid #2f3336; display: flex; align-items: center; gap: 20px; }
+    .trend-afis-ikon { background: rgba(255,170,0,0.15); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; border: 1px solid rgba(255,170,0,0.3); }
+    .trend-afis-ikon i { color: #ffaa00; font-size: 2em; }
+    .trend-afis-baslik { margin: 0 0 8px 0; color: #ffffff; font-size: 1.2em; font-weight: 900; letter-spacing: 0.5px; }
+    .trend-afis-metin { margin: 0; color: #aaa; font-size: 0.95em; line-height: 1.6; }
+
+    .trend-listesi { display: flex; flex-direction: column; }
+    .trend-kart { padding: 30px 25px; border-bottom: 1px solid #2f3336; display: flex; gap: 25px; transition: 0.3s; position: relative; overflow: hidden; }
+    .trend-kart:hover { background: rgba(255,255,255,0.02); }
+    
+    .kart-altin { background: linear-gradient(90deg, rgba(255,215,0,0.08) 0%, transparent 100%); }
+    .kart-gumus { background: linear-gradient(90deg, rgba(192,192,192,0.08) 0%, transparent 100%); }
+    .kart-bronz { background: linear-gradient(90deg, rgba(205,127,50,0.08) 0%, transparent 100%); }
+    .kart-normal { background: transparent; }
+
+    .sira-kutusu { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-width: 60px; }
+    
+    .ikon-altin { color: #ffd700; font-size: 2.5em; filter: drop-shadow(0 0 10px rgba(255,215,0,0.6)); margin-bottom: 8px; }
+    .yazi-altin { color: #ffd700; font-weight: 900; font-size: 1.6em; }
+    
+    .ikon-gumus { color: #c0c0c0; font-size: 2.2em; filter: drop-shadow(0 0 8px rgba(192,192,192,0.6)); margin-bottom: 8px; }
+    .yazi-gumus { color: #c0c0c0; font-weight: 900; font-size: 1.4em; }
+    
+    .ikon-bronz { color: #cd7f32; font-size: 1.9em; filter: drop-shadow(0 0 8px rgba(205,127,50,0.6)); margin-bottom: 8px; }
+    .yazi-bronz { color: #cd7f32; font-weight: 900; font-size: 1.3em; }
+    
+    .yazi-standart { color: #555; font-weight: 900; font-size: 1.6em; margin-top: 15px; }
+
+    .trend-icerik-alani { width: 100%; }
+    .trend-yazar-satir { display: flex; align-items: center; margin-bottom: 15px; }
+    .trend-avatar { width: 35px; height: 35px; display: inline-flex; justify-content: center; align-items: center; background: #333; color: #fff; border-radius: 50%; margin-right: 12px; font-size: 1em; }
+    .trend-isim { font-weight: 900; color: #ffffff; font-size: 1.1em; }
+    .trend-tarih { color: #71767b; font-size: 0.9em; margin-left: 10px; font-weight: 600; }
+
+    .trend-metin { font-size: 1.3em; line-height: 1.6; color: #e7e9ea; margin-bottom: 20px; word-wrap: break-word; }
+    .trend-metin-kalin { font-weight: 800; font-size: 1.35em; color: #ffffff; }
+
+    .trend-etkilesim { display: flex; align-items: center; gap: 25px; }
+    .trend-begeni-kutu { background: rgba(249,24,128,0.1); padding: 10px 20px; border-radius: 25px; display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(249,24,128,0.3); }
+    .trend-begeni-ikon { color: #f91880; font-size: 1.3em; }
+    .trend-begeni-sayi { color: #f91880; font-weight: 900; font-size: 1.15em; }
+    
+    .trend-yorum-kutu { color: #00e5ff; font-weight: 800; font-size: 1.05em; display: flex; align-items: center; gap: 8px; }
+
+    .bos-trend { padding: 120px 20px; text-align: center; }
+    .bos-trend-ikon { background: rgba(255,170,0,0.05); width: 130px; height: 130px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 25px auto; border: 1px dashed #ffaa00; }
+    .bos-trend-ikon i { font-size: 4em; color: #ffaa00; }
+    .bos-trend-baslik { color: #ffffff; font-size: 1.8em; margin-bottom: 15px; font-weight: 900; }
+    .bos-trend-metin { color: #71767b; font-size: 1.15em; line-height: 1.6; max-width: 450px; margin: 0 auto; }
+    .btn-akis-git { display: inline-flex; align-items: center; gap: 10px; margin-top: 30px; background: #ffaa00; color: #000; padding: 15px 35px; border-radius: 40px; font-weight: 900; font-size: 1.1em; text-decoration: none; transition: 0.3s; box-shadow: 0 5px 20px rgba(255,170,0,0.2); }
+    .btn-akis-git:hover { background: #e69900; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255,170,0,0.4); }
+
+    @keyframes atankalp {
+        0% { transform: scale(1); }
+        15% { transform: scale(1.3); }
+        30% { transform: scale(1); }
+        45% { transform: scale(1.3); }
+        60% { transform: scale(1); }
+        100% { transform: scale(1); }
+    }
+    .animasyon-kalp { animation: atankalp 1.5s infinite; }
+</style>
+
+<div class="trend-baslik">
+    <i class="fas fa-fire"></i>
+    <span>Haftanın Trendleri</span>
+</div>
+
+<div class="trend-afis">
+    <div class="trend-afis-ikon">
+        <i class="fas fa-chart-line"></i>
+    </div>
+    <div>
+        <h3 class="trend-afis-baslik">En Çok Destek Gören Dilekler</h3>
+        <p class="trend-afis-metin">Bu liste, öğrencilerin en çok desteklediği onaylı gönderilerden oluşur. Cumartesi günü yapılacak anket için kıyasıya bir yarış var!</p>
+    </div>
+</div>
+
+<div class="trend-listesi">
+    {% if gonderiler %}
+        {% for gonderi in gonderiler %}
+        
+        {% if loop.index == 1 %}
+            <div class="trend-kart kart-altin">
+        {% elif loop.index == 2 %}
+            <div class="trend-kart kart-gumus">
+        {% elif loop.index == 3 %}
+            <div class="trend-kart kart-bronz">
+        {% else %}
+            <div class="trend-kart kart-normal">
+        {% endif %}
+            
+            <div class="sira-kutusu">
+                {% if loop.index == 1 %}
+                    <i class="fas fa-crown ikon-altin"></i>
+                    <span class="yazi-altin">#1</span>
+                {% elif loop.index == 2 %}
+                    <i class="fas fa-medal ikon-gumus"></i>
+                    <span class="yazi-gumus">#2</span>
+                {% elif loop.index == 3 %}
+                    <i class="fas fa-award ikon-bronz"></i>
+                    <span class="yazi-bronz">#3</span>
+                {% else %}
+                    <span class="yazi-standart">#{{ loop.index }}</span>
+                {% endif %}
+            </div>
+
+            <div class="trend-icerik-alani">
+                <div class="trend-yazar-satir">
+                    <span class="trend-avatar"><i class="fas fa-user"></i></span>
+                    <span class="trend-isim">Öğrenci</span>
+                    <span class="trend-tarih">· {{ gonderi.tarih }}</span>
+                </div>
+                
+                {% if loop.index <= 3 %}
+                    <div class="trend-metin trend-metin-kalin">"{{ gonderi.icerik }}"</div>
+                {% else %}
+                    <div class="trend-metin">"{{ gonderi.icerik }}"</div>
+                {% endif %}
+                
+                {% if gonderi.begenenler %}
+                    {% set begenenler_sayisi = gonderi.begenenler|length %}
+                {% else %}
+                    {% set begenenler_sayisi = 0 %}
+                {% endif %}
+
+                {% if gonderi.yorumlar %}
+                    {% set yorumlar_sayisi = gonderi.yorumlar|length %}
+                {% else %}
+                    {% set yorumlar_sayisi = 0 %}
+                {% endif %}
+
+                <div class="trend-etkilesim">
+                    <div class="trend-begeni-kutu">
+                        {% if loop.index == 1 %}
+                            <i class="fas fa-heart trend-begeni-ikon animasyon-kalp"></i>
+                        {% else %}
+                            <i class="fas fa-heart trend-begeni-ikon"></i>
+                        {% endif %}
+                        <span class="trend-begeni-sayi">{{ begenenler_sayisi }} Beğeni</span>
+                    </div>
+
+                    <div class="trend-yorum-kutu">
+                        <i class="fas fa-comment"></i> {{ yorumlar_sayisi }} Yorum
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="bos-trend">
+            <div class="bos-trend-ikon">
+                <i class="fas fa-thermometer-empty"></i>
+            </div>
+            <h3 class="bos-trend-baslik">Trendler Şu An Soğuk</h3>
+            <p class="bos-trend-metin">Henüz kimse gönderi paylaşmamış veya beğenmemiş. Akışa giderek okuldaki ilk kıvılcımı sen çak!</p>
+            <a href="{{ url_for('akis') }}" class="btn-akis-git">
+                <i class="fas fa-bolt"></i> Akışa Git
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

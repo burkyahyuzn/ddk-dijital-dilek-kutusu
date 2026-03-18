@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDK - Sisteme Giriş</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .flash-genel { padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; text-align: left; }
+        .flash-bg-hata { background: rgba(255,68,68,0.1); color: #ff4444; border: 1px solid rgba(255,68,68,0.2); }
+        .flash-bg-bilgi { background: rgba(0,229,255,0.1); color: #00e5ff; border: 1px solid rgba(0,229,255,0.2); }
+        .gecis-yazisi { color: #71767b; font-size: 0.9em; cursor: pointer; transition: 0.2s; border-bottom: 1px dashed #71767b; padding-bottom: 2px; }
+        .gecis-yazisi:hover { color: #fff; border-color: #fff; }
+    </style>
+</head>
+<body class="giris-body">
+
+    <div class="giris-kapsayici">
+        
+        <div style="margin-bottom: 30px;">
+            <i class="fas fa-cube" style="font-size: 3.5em; color: #00e5ff; filter: drop-shadow(0 0 15px rgba(0,229,255,0.4)); margin-bottom: 10px;"></i>
+            <h1 style="color: #ffffff; margin: 0; font-size: 2.2em; font-weight: 900; letter-spacing: -1px;">DDK</h1>
+            <p style="color: #888; margin: 5px 0 0 0; font-size: 0.85em; letter-spacing: 3px;">DİJİTAL DİLEK KUTUSU</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash-genel {{ 'flash-bg-hata' if category == 'hata' else 'flash-bg-bilgi' }}">
+                  <i class="fas {{ 'fa-exclamation-triangle' if category == 'hata' else 'fa-info-circle' }}"></i> 
+                  {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div id="ogrenci-formu">
+            <form method="POST" action="/">
+                <input type="hidden" name="tip" value="ogrenci">
+                
+                <div>
+                    <input type="text" name="tc" class="giris-input" placeholder="T.C. Kimlik Numarası" required autocomplete="off" maxlength="11">
+                </div>
+                
+                <div>
+                    <input type="text" name="numara" class="giris-input" placeholder="Okul Numarası" required autocomplete="off">
+                </div>
+
+                <button type="submit" class="btn-giris">
+                    Öğrenci Girişi <i class="fas fa-arrow-right" style="margin-left: 5px;"></i>
+                </button>
+            </form>
+            
+            <div style="margin-top: 25px; border-top: 1px solid #333; padding-top: 15px;">
+                <span onclick="modDegistir()" class="gecis-yazisi">
+                    <i class="fas fa-shield-alt"></i> Yetkili Girişi İçin Tıklayın
+                </span>
+            </div>
+        </div>
+
+        <div id="yetkili-formu" style="display: none;">
+            <form method="POST" action="/">
+                <input type="hidden" name="tip" value="yetkili">
+                
+                <div style="margin-bottom: 20px;">
+                    <span style="background: rgba(255,0,85,0.1); color: #ff0055; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.85em; letter-spacing: 1px;">
+                        YETKİLİ PANELİ
+                    </span>
+                </div>
+
+                <div>
+                    <input type="text" name="tc" class="giris-input" placeholder="Yetkili T.C. Kimlik No" required autocomplete="off" maxlength="11">
+                </div>
+                
+                <div>
+                    <input type="password" name="sifre" class="giris-input" placeholder="Erişim Şifresi" required>
+                </div>
+
+                <button type="submit" class="btn-giris btn-yetkili">
+                    Yetkili Girişi <i class="fas fa-unlock" style="margin-left: 5px;"></i>
+                </button>
+            </form>
+            
+            <div style="margin-top: 25px; border-top: 1px solid #333; padding-top: 15px;">
+                <span onclick="modDegistir()" class="gecis-yazisi">
+                    <i class="fas fa-user-graduate"></i> Öğrenci Girişine Dön
+                </span>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; font-size: 0.75em; color: #444; line-height: 1.5;">
+            <i class="fas fa-lock"></i> MEB Robot Yarışması için geliştirilmiştir. <br>Tüm girişler kayıt altına alınmaktadır.
+        </div>
+
+    </div>
+
+    <script>
+        function modDegistir() {
+            var ogrForm = document.getElementById("ogrenci-formu");
+            var ytkForm = document.getElementById("yetkili-formu");
+            
+            if (ogrForm.style.display === "none") {
+                ytkForm.style.display = "none";
+                ogrForm.style.display = "block";
+                document.title = "DDK - Öğrenci Girişi";
+            } else {
+                ogrForm.style.display = "none";
+                ytkForm.style.display = "block";
+                document.title = "DDK - Yetkili Girişi";
+            }
+        }
+    </script>
+    
+</body>
+</html>

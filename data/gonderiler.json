@@ -1,0 +1,69 @@
+[
+    {
+        "id": 1773862921,
+        "yazar": "Burak Yahya UZUN",
+        "tc": "111",
+        "tur": "ogrenci",
+        "icerik": "Spor salonu tamir edilmeli",
+        "tarih": "18.03.2026 22:42",
+        "hafta_no": 12,
+        "begenenler": [
+            "111",
+            "222",
+            "11"
+        ],
+        "yorumlar": [],
+        "durum": "yayinda"
+    },
+    {
+        "id": 1773863012,
+        "yazar": "Yusuf Kaan Yavuz",
+        "tc": "222",
+        "tur": "ogrenci",
+        "icerik": "Okul boyanmalı",
+        "tarih": "18.03.2026 22:43",
+        "hafta_no": 12,
+        "begenenler": [
+            "222",
+            "11"
+        ],
+        "yorumlar": [],
+        "durum": "yayinda"
+    },
+    {
+        "id": 1773863038,
+        "yazar": "Yusuf Kaan Yavuz",
+        "tc": "222",
+        "tur": "ogrenci",
+        "icerik": "Tuvaletler tamir edilmeli",
+        "tarih": "18.03.2026 22:43",
+        "hafta_no": 12,
+        "begenenler": [],
+        "yorumlar": [],
+        "durum": "yayinda"
+    },
+    {
+        "id": 1773863067,
+        "yazar": "Mahmut",
+        "tc": "11",
+        "tur": "yetkili",
+        "icerik": "Duyuru",
+        "tarih": "18.03.2026 22:44",
+        "hafta_no": 12,
+        "begenenler": [],
+        "yorumlar": [],
+        "durum": "yayinda"
+    },
+    {
+        "id": 1773863217,
+        "yazar": "Burak Yahya UZUN",
+        "tc": "111",
+        "tur": "ogrenci",
+        "icerik": "aoındrpoınrt",
+        "tarih": "18.03.2026 22:46",
+        "hafta_no": 12,
+        "begenenler": [],
+        "yorumlar": [],
+        "durum": "beklemede"
+    }
+]

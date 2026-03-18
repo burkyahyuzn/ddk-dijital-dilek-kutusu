@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}DDK - Ana Akış{% endblock %}
+
+{% block icerik %}
+<style>
+    .sekme-container { display: flex; border-bottom: 1px solid #2f3336; background: rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 90; backdrop-filter: blur(5px); }
+    .sekme-btn { flex: 1; text-align: center; padding: 18px; font-weight: 800; transition: 0.2s; text-decoration: none; }
+    .sekme-aktif-ogr { border-bottom: 4px solid #00e5ff; color: #fff; background: rgba(0,229,255,0.05); }
+    .sekme-aktif-ytk { border-bottom: 4px solid #ff0055; color: #fff; background: rgba(255,0,85,0.05); }
+    .sekme-pasif { color: #71767b; border-bottom: 4px solid transparent; }
+    .gonderi-textarea { width: 100%; background: transparent; border: none; color: white; font-size: 1.2em; resize: none; outline: none; font-family: inherit; margin-top: 5px; }
+    .btn-paylas { padding: 10px 30px; font-size: 1.1em; border-radius: 30px; border: none; background: #00e5ff; color: #000; font-weight: 800; cursor: pointer; transition: 0.2s; }
+    .btn-paylas:hover { background: #00b8cc; transform: scale(1.05); }
+    .post-kart { padding: 25px 20px; border-bottom: 1px solid #2f3336; transition: 0.3s; }
+    .btn-sil { color: #ff4444; font-size: 1em; padding: 5px 10px; border-radius: 5px; cursor: pointer; text-decoration: none; margin-left: 10px; }
+    .btn-sil:hover { background: rgba(255,68,68,0.15); }
+    .btn-ban { color: #ff0055; font-size: 1em; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    .btn-ban:hover { background: rgba(255,0,85,0.15); }
+    .etkilesim-bar { display: flex; gap: 50px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; margin-top: 15px; }
+    .ikon-btn { background: none; border: none; color: #71767b; cursor: pointer; font-size: 1em; display: flex; align-items: center; text-decoration: none; padding: 5px; }
+    .ikon-begendi { color: #f91880; font-weight: bold; }
+    .yorum-alani { display: none; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; margin-top: 20px; border: 1px solid #1a1a1a; }
+    .yorum-input-alan { flex-grow: 1; background: #050505; border: 1px solid #333; padding: 15px; border-radius: 30px; color: white; outline: none; transition: 0.3s; width: 100%; box-sizing: border-box; }
+    .gizlilik-kutu { display: none; background: #111; padding: 15px; margin-top: 10px; border-radius: 8px; border: 1px solid #333; color: #aaa; font-size: 0.9em; line-height: 1.6; text-align: left; }
+    .isim-yetkili { color: #ff0055; font-weight: bold; }
+    .isim-ogrenci { color: #fff; font-weight: bold; }
+    .isim-tiklanabilir { color: #ffcc00; font-weight: bold; cursor: pointer; }
+    .avatar-kutu { display: inline-flex; width: 30px; height: 30px; vertical-align: middle; margin-right: 5px; justify-content: center; align-items: center; border-radius: 50%; background: #333; color: #fff; }
+    .yorum-satir { margin-bottom: 10px; border-left: 2px solid #333; padding-left: 10px; }
+    .yorum-baslik-yetkili { color: #ff0055; font-weight: bold; }
+    .yorum-baslik-ogrenci { color: #00e5ff; font-weight: bold; }
+</style>
+
+<div class="sekme-container">
+    {% if aktif_mod == 'ogrenci' %}
+        <a href="{{ url_for('akis', mod='ogrenci') }}" class="sekme-btn sekme-aktif-ogr"><i class="fas fa-user-graduate"></i> Öğrenci Dilekleri</a>
+        <a href="{{ url_for('akis', mod='yetkili') }}" class="sekme-btn sekme-pasif"><i class="fas fa-chalkboard-teacher"></i> Yetkili Duyuruları</a>
+    {% else %}
+        <a href="{{ url_for('akis', mod='ogrenci') }}" class="sekme-btn sekme-pasif"><i class="fas fa-user-graduate"></i> Öğrenci Dilekleri</a>
+        <a href="{{ url_for('akis', mod='yetkili') }}" class="sekme-btn sekme-aktif-ytk"><i class="fas fa-chalkboard-teacher"></i> Yetkili Duyuruları</a>
+    {% endif %}
+</div>
+
+{% if aktif_mod == session.get('rol') and bugun != 6 %}
+<div style="background: #080808; padding: 20px; border-bottom: 1px solid #2f3336; display: flex; gap: 15px;">
+    <div class="avatar" style="width: 50px; height: 50px; font-size: 1.5em; background: #333; color: #fff; display: flex; justify-content: center; align-items: center; border-radius: 50%;"><i class="fas fa-user"></i></div>
+    <form action="{{ url_for('gonder') }}" method="POST" style="width: 100%;">
+        {% if session.get('rol') == 'ogrenci' %}
+            <textarea name="icerik" rows="3" class="gonderi-textarea" 
+                {% if uyarili_mi %}
+                    placeholder="Bir sebepten dolayı uyarı aldınız! Bu hafta boyunca gönderi yapamazsınız..." disabled
+                {% else %}
+                    placeholder="Okul hakkında bir dilek veya öneri yaz..." required
+                {% endif %}></textarea>
+            
+            {% if not uyarili_mi %}
+            <div style="margin-top: 10px;">
+                <span onclick="document.getElementById('gizlilik-bilgi').style.display = document.getElementById('gizlilik-bilgi').style.display === 'none' ? 'block' : 'none'" style="color:#00e5ff; cursor:pointer; font-weight:bold; font-size: 0.85em;">
+                    <i class="fas fa-shield-alt"></i> Gizlilik (Tıkla)
+                </span>
+                <div id="gizlilik-bilgi" class="gizlilik-kutu">
+                    - Öğrenci isimleri akışta gizlidir<br>
+                    - Yetkililer isimlerinizi görebilir<br>
+                    - haftalık iki gönderi paylaşabilirsiniz<br>
+                    - uygunsuz yazılarınız yetkililer tarafından görülebilir<br>
+                    - kötü durumlarda banlanabilirsiniz
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <textarea name="icerik" rows="3" class="gonderi-textarea" placeholder="Duyuru paylaş..." required></textarea>
+        {% endif %}
+
+        {% if not uyarili_mi %}
+        <div style="text-align: right; border-top: 1px dashed #333; padding-top: 10px; margin-top: 10px;">
+            <button type="submit" class="btn-paylas">Paylaş <i class="fas fa-paper-plane"></i></button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% elif bugun == 6 %}
+<div style="padding: 20px; background: rgba(255,255,255,0.02); text-align: center; color: #71767b; font-size: 1.1em; font-weight: bold;">
+    <i class="fas fa-info-circle"></i> Pazar günleri gönderi yapılamaz. Gönderiler sıfırlanmıştır.
+</div>
+{% endif %}
+
+<div>
+    {% if gonderiler %}
+        {% for gonderi in gonderiler %}
+        <div class="post-kart">
+            <div style="display: flex; justify-content: space-between;">
+                <div>
+                    <div class="avatar-kutu"><i class="fas fa-user"></i></div>
+                    
+                    {% if gonderi.tur == 'ogrenci' %}
+                        {% if session.get('rol') == 'yetkili' %}
+                            <span class="isim-tiklanabilir" onclick="alert('Öğrenci Adı: {{ gonderi.yazar }}')">Öğrenci <i class="fas fa-lock-open"></i></span>
+                        {% else %}
+                            <span class="isim-ogrenci">Öğrenci</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="isim-yetkili">{{ gonderi.yazar }} <i class="fas fa-check-circle"></i></span>
+                    {% endif %}
+                    
+                    <span style="color: #71767b; font-size: 0.85em; margin-left: 8px;">· {{ gonderi.tarih }}</span>
+                </div>
+
+                <div>
+                    {% if session.get('rol') == 'yetkili' %}
+                        {% if gonderi.tur == 'ogrenci' %}
+                            <span class="btn-ban" onclick="sifreliYetkiliIslemi('banla', '{{ gonderi.tc }}')"><i class="fas fa-ban"></i> Banla</span>
+                        {% endif %}
+                        <span class="btn-sil" onclick="sifreliYetkiliIslemi('sil', '{{ gonderi.id }}')"><i class="fas fa-trash-alt"></i> Sil</span>
+                    {% elif session.get('rol') == 'ogrenci' and session.get('tc') == gonderi.tc %}
+                        <a href="{{ url_for('ogrenci_sil', post_id=gonderi.id) }}" onclick="return confirm('Kendi gönderini silmek istediğine emin misin?');" class="btn-sil"><i class="fas fa-trash-alt"></i> Sil</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div style="font-size: 1.15em; margin: 15px 0; color: #ffffff; white-space: pre-wrap; line-height: 1.6;">{{ gonderi.icerik }}</div>
+            
+            <div class="etkilesim-bar">
+                {% if gonderi.begenenler %}
+                    {% set begenenler = gonderi.begenenler %}
+                {% else %}
+                    {% set begenenler = [] %}
+                {% endif %}
+                
+                {% if session.get('tc') in begenenler %}
+                    <a href="{{ url_for('begen', post_id=gonderi.id) }}" class="ikon-btn ikon-begendi">
+                        <i class="fas fa-heart"></i> <span style="margin-left:5px;">{{ begenenler|length }}</span>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('begen', post_id=gonderi.id) }}" class="ikon-btn">
+                        <i class="far fa-heart"></i> <span style="margin-left:5px;">{{ begenenler|length }}</span>
+                    </a>
+                {% endif %}
+
+                {% if gonderi.yorumlar %}
+                    {% set yorum_sayisi = gonderi.yorumlar|length %}
+                {% else %}
+                    {% set yorum_sayisi = 0 %}
+                {% endif %}
+
+                <button class="ikon-btn" onclick="document.getElementById('yorum-alan-{{ gonderi.id }}').style.display = document.getElementById('yorum-alan-{{ gonderi.id }}').style.display === 'none' ? 'block' : 'none'">
+                    <i class="far fa-comment-dots"></i> <span style="margin-left:5px;">{{ yorum_sayisi }}</span>
+                </button>
+            </div>
+            
+            <div id="yorum-alan-{{ gonderi.id }}" class="yorum-alani">
+                {% if gonderi.yorumlar %}
+                    {% for y in gonderi.yorumlar %}
+                        <div class="yorum-satir">
+                            {% if y.rol == 'yetkili' %}
+                                <span class="yorum-baslik-yetkili"><i class="fas fa-user"></i> {{ y.yazan }}</span>
+                            {% else %}
+                                <span class="yorum-baslik-ogrenci"><i class="fas fa-user"></i> Öğrenci</span>
+                            {% endif %}
+                            <span style="color: #555; font-size: 0.8em; margin-left: 10px;">{{ y.tarih }}</span>
+                            <div style="color: #ddd; margin-top: 5px; line-height: 1.4;">{{ y.icerik }}</div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <form action="{{ url_for('yorum_yap', post_id=gonderi.id) }}" method="POST" style="margin-top: 15px; display: flex; gap:10px;">
+                    <input type="text" name="yorum_icerik" class="yorum-input-alan" placeholder="Yanıt yaz..." required>
+                    <button type="submit" style="background:#00e5ff; border:none; border-radius:30px; font-weight:bold; cursor:pointer; padding: 0 20px;"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div style="padding: 100px 20px; text-align: center; color: #555;">
+            <i class="fas fa-wind" style="font-size: 3.5em; margin-bottom: 20px;"></i>
+            <h3>Burası çok ıssız...</h3>
+            <p>Akışta henüz paylaşım yok.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
